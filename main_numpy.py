@@ -21,12 +21,15 @@ class Activity:
 
     def __init__(self):
         print("Init ...")
-        data = np.load('./datas.npz', allow_pickle=True)
+        data = np.load('./datas_numpy.npz', allow_pickle=True)
         self.train = data["train"]
         self.test = data["test"]
         self.train_label = data["train_label"]
         self.test_label = data["test_label"]
+
+        print("11", self.train[11], self.train_label[11], self.test[11], self.test_label[11])
         print("Doit afficher 0:", self.train_label[0])
+
         self.layers = [PAQUET, 100, 100, NB_OBJ]
         self.activations = [relu, relu, sigmoid]
         self.diagonale = np.eye(NB_OBJ, NB_OBJ)

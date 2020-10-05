@@ -2,24 +2,24 @@
 
 import numpy as np
 # #from tensorflow import keras
-from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Conv2D
-from tensorflow.keras.layers import MaxPool2D
-from tensorflow.keras.layers import Flatten
-from tensorflow.keras.layers import Dropout
+from tensorflow.keras import Sequential, layers
 
 
-epochs = 10
+epochs = 5
 
 def main():
 
+    # #resp = []
     train, test, train_label, test_label = get_train_test_datas()
+    print("11", train[11], train_label[11], test[11], test_label[11])
+
     model = build_the_model()
     model = compile_the_model(model)
     model = training_the_model(model, train, train_label, epochs)
-    model.save('acc_model.h5')
-    testing_the_model(model, test, test_label)
+    # #model.save('acc_model.h5')
+    test_acc = testing_the_model(model, test, test_label)
+    print("    Efficacité: ", round(test_acc*100, 1), "%")
+
 
 def get_train_test_datas():
 
@@ -38,11 +38,17 @@ def build_the_model():
     print("\n\n\nBuild the model ...")
 
     model = Sequential()
-    model.add(Dense(100, batch_input_shape=(None, 50, 3),
-                    kernel_initializer="he_normal" ,activation="relu"))
-    model.add(Dense(256, kernel_initializer="he_normal", activation="relu"))
-    model.add(Flatten())
-    model.add(Dense(7))
+
+    # Input layer
+    model.add(layers.Dense(units=4, input_shape=(50, 3)))
+    model.add(layers.Flatten())
+
+    # Hiiden layer
+    model.add(layers.Dense(64))
+
+
+    # Output
+    model.add(layers.Dense(7))
 
     print(model.summary())
     print("Build done.")
@@ -72,8 +78,7 @@ def training_the_model(model, train, train_label, epochs):
 def testing_the_model(model, test, test_label):
     print("\n\n\nTesting ......")
     test_loss, test_acc = model.evaluate(test, test_label)
-    print("    Efficacité: ", round(test_acc*100, 1), "%")
-
+    return test_acc
 
 if __name__ == "__main__":
     main()
