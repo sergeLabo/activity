@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!python3
 
 
 import numpy as np
@@ -86,4 +86,4 @@ if __name__ == "__main__":
     weight_list = act.training(learningrate)
     resp = act.testing(weight_list)
 
-    print(f"Learningrate: {learningrate} Résultat {round(resp, 1)}")
+    print(f"Learningrate: {learningrate} Résultat {round(resp, 1)}%")

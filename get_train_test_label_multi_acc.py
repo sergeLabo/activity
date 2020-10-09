@@ -1,9 +1,10 @@
-#!/usr/bin/env python3
+#!python3
 
 
 import os
 from time import time, sleep
 import numpy as np
+import random
 
 PAQUET = 50
 
@@ -106,10 +107,28 @@ def get_train_test_label(accs, acts):
             train_test_label.append(en_cours)
             paquet = []
 
-    train = np.array(train_test)[:n_train, ]
-    test  = np.array(train_test)[n_train:, ]
-    train_label = np.array(train_test_label)[:n_train, ]
-    test_label = np.array(train_test_label)[n_train:, ]
+    # je bats les cartes des datas, mais conserve la correspondance valeur, label
+    par_couple = {}
+    p = 0
+    for p in range(len(train_test)):
+        par_couple[p] = (train_test[p], train_test_label[p])
+
+    train = []
+    train_label = []
+    # liste de nombre au hasard qui seront les indices
+    hasard = [x for x in range(len(par_couple))]
+    random.shuffle(hasard)
+    for item in hasard[:n_train]:
+        train.append(par_couple[item][0])
+        train_label.append(par_couple[item][1])
+    for item in hasard[n_train:]:
+        train.append(par_couple[item][0])
+        train_label.append(par_couple[item][1])
+
+    train = np.array(train_test)
+    test  = np.array(train_test)
+    train_label = np.array(train_test_label)
+    test_label = np.array(train_test_label)
     print("Taille", train.shape, test.shape, train_label.shape, test_label.shape)
     return train, test, train_label, test_label
 
@@ -128,14 +147,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-    # #train = np.array(train)
-    # #test = np.array(test)
-    # #train_label = np.array(train_label)
-    # #test_label = np.array(test_label)
-
-    # #train = accs[:n_train, ]
-    # #test = accs[n_train:, ]
-    # #train_label = acts[:n_train, ]
-    # #test_label = acts[n_train:, ]

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!python3
 
 import numpy as np
 # #from tensorflow import keras
@@ -13,7 +13,7 @@ def main():
     print("11", train[11], train_label[11], test[11], test_label[11])
 
     resp = []
-    for test1 in [32]:  # [1,2,4,8,16,32,64,128]:
+    for test1 in [32]:
         model = build_the_model(test1)
         model = compile_the_model(model)
         model = training_the_model(model, train, train_label, epochs)
