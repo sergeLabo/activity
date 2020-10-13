@@ -4,9 +4,13 @@
 *.geanywb
 
 # divers non suivi
+Activity Recognition/
 old/
 courbe/
 config/
+hyperparameter/
+npz/
+npz_final/
 
 # Forced !/poesie/poesie_1/poesie_clean.txt
 

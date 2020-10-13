@@ -27,7 +27,7 @@ def main():
 def get_train_test_datas():
 
     print("Init ...")
-    data = np.load('./datas_numpy.npz', allow_pickle=True)
+    data = np.load('./npz_final/datas_numpy.npz', allow_pickle=True)
     train = data["train"]
     test = data["test"]
     train_label = data["train_label"]

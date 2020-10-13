@@ -8,7 +8,7 @@ import ast
 import numpy as np
 
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider, Button, RadioButtons
+from matplotlib.widgets import Slider
 
 import matplotlib
 print(f"Matplotlib: Version = {matplotlib.__version__}")
@@ -86,25 +86,12 @@ def plot_geek_activities(datas, activ, geek):
         fig, ax = plt.subplots(figsize=(20,10), facecolor='#cccccc')
         plt.subplots_adjust(left=0.1, bottom=0.15)
         ax.set_facecolor('#eafff5')
-        ax.set_title("Activity " + str(activ) + " Geek " + str(geek),
+        ax.set_title("Activity " + str(activ) + " Geek " + str(geek) + " Groupe " + str(gr),
                         size=24,
                         color='magenta')
         ax.set_ylim(3000, 5000)
 
-        l = plt.plot(   x_values,
-                        y_values,
-                        marker = 'X',
-                        linewidth=0.02)
-
-        # 2 verticales
-        # si init_CONFIG est actif
-        # #mini, maxi = 100, 200
-        # #vlm = ax.axvline(mini)
-        # #vlM = ax.axvline(maxi)
-        # ## Enregistre même si slider non update
-        # #CONFIG[activ][geek]["mini_" + str(gr)] = int(mini)
-        # #CONFIG[activ][geek]["maxi_" + str(gr)] = int(maxi)
-        # #save_config()
+        l = plt.plot(x_values, y_values, marker = 'X', linewidth=0.02)
 
         mini = CONFIG[str(activ)][str(geek)]["mini_" + str(gr)]
         maxi = CONFIG[str(activ)][str(geek)]["maxi_" + str(gr)]
@@ -137,7 +124,7 @@ def plot_geek_activities(datas, activ, geek):
         slidmin.on_changed(update_mini)
         slidmax.on_changed(update_maxi)
 
-        fig.savefig("./config/activ_" + str(activ) + "_geek_" + str(geek) + "_groupe_" + str(gr) + ".png")
+        fig.savefig("./courbe/zone_defined/activ_" + str(activ) + "_geek_" + str(geek) + "_groupe_" + str(gr) + ".png")
         plt.show()
         gr += 1
 
@@ -157,25 +144,14 @@ def load_config():
         fd.close()
     return ast.literal_eval(conf)
 
-def init_CONFIG():
-    """A utiliser pour créer une config initiale vide"""
-
-    for activ in range(1, 8, 1):  # 7 valeurs de 1 à 7
-        CONFIG[activ] = {}
-        for geek in range(1, 16, 1):
-            CONFIG[activ][geek] = {}
-    print(f"Config initiale:")
-    print(f"    {CONFIG}")
-
 CONFIG = load_config()
-## {"1": {"1": {"mini_0": 1000, "maxi_0": 44150, "mini_1": 1000, "maxi_1": 44150},
 
 def main():
     global CONFIG
     print(f"Get all datas ...")
     datas = get_data_in_all_npz()
     print(f"Done.\n\n")
-    for activ in range(5, 8, 1):  # 7 valeurs de 1 à 7
+    for activ in range(1, 8, 1):  # 7 valeurs de 1 à 7
         for geek in range(1, 16, 1):  # 15 humains
             plot_geek_activities(datas, activ, geek)
             save_config()

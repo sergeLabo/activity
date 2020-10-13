@@ -137,7 +137,7 @@ def main():
     accs, acts = get_accs_acts()
     train, test, train_label, test_label = get_train_test_label(accs, acts)
 
-    outfile = './datas_keras.npz'
+    outfile = './npz_final/datas_keras.npz'
     np.savez_compressed(outfile, **{"train": train,
                                     "test": test,
                                     "train_label": train_label,
