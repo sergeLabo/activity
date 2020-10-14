@@ -9,8 +9,8 @@ old/
 courbe/
 npz_final/hyperparameter/
 
-# Forced !/poesie/poesie_1/poesie_clean.txt pour avoir la syntaxe
-
+# Forced
+!/npz_final/hyperparameter/smooth_keras_49_81_3.npz
 
 # Python test
 *_old.py

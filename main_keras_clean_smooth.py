@@ -17,7 +17,7 @@ import random
 from datetime import datetime
 from tensorflow.keras import Sequential, layers
 
-# #from create_smooth_paquets import
+from create_smooth_paquets import get_one_shot_final_npz
 
 
 def main():
@@ -27,7 +27,7 @@ def main():
     # #hyper_parameter_optimization()
 
     # Définir les options, le npz doit être créé dans create_smooth_paquets avant
-    PAQUET = 51
+    PAQUET = 49
     window = 81 # impair
     polyorder = 3
     smooth = 1
@@ -44,9 +44,26 @@ def only_one_train_test(**kwargs):
     smooth = kwargs.get('smooth', None)
     epochs = kwargs.get('epochs', None)
 
-    # ## création du npz: a revoir pour ne pas le refaire à chaque fois
-    # #get_one_shot_npz(PAQUET=PAQUET, window=window, polyorder=polyorder,
-                     # #smooth=smooth)
+    # Recherche du fichier
+    if smooth:
+        infile =    './npz_final/hyperparameter/smooth_keras_' +\
+                    str(PAQUET) + '_' +\
+                    str(window) + '_' +\
+                    str(polyorder) +\
+                    '.npz'
+    else:
+        infile =    './npz_final/hyperparameter/no_smooth_keras_' +\
+                    str(PAQUET) + '_' +\
+                    str(window) + '_' +\
+                    str(polyorder) +\
+                    '.npz'
+
+    try:
+        np.load(infile, allow_pickle=True)
+    except:
+        # création du npz
+        get_one_shot_final_npz(PAQUET=PAQUET, window=window, polyorder=polyorder,
+                                smooth=smooth)
 
     train, test, train_label, test_label = get_train_test_datas(PAQUET=PAQUET,
                                                                 window=window,
@@ -67,10 +84,10 @@ def hyper_parameter_optimization():
     smooth = 1
 
     for i in range(5):
-        for PAQUET in [301]:  # [25, 51, 75, 101, 125, 151, 251, 301]:
-            for window in [61]:  #[21, 31, 41, 51, 61, 71, 81]:  # toujours impair
-                for polyorder in [7]:  #[1, 3, 5, 7, 9]:
-                    for epochs in [10]:  #[5, 10, 20]:
+        for PAQUET in [25, 51, 75, 101, 125, 151, 251, 301]:
+            for window in [21, 31, 41, 51, 61, 71, 81]:  # toujours impair
+                for polyorder in [1, 3, 5, 7, 9]:
+                    for epochs in [5, 10, 20]:
                         train, test, train_label, test_label = get_train_test_datas(PAQUET=PAQUET,
                                                                                     window=window,
                                                                                     polyorder=polyorder,

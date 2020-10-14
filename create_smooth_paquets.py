@@ -75,8 +75,63 @@ def main():
                                                         save=save)
                 print("Done.")
 
-def get_one_shot_npz():
-    pass
+def get_one_shot_final_npz(**kwargs):
+
+    PAQUET = kwargs.get('PAQUET', None)
+    window = kwargs.get('window', None)
+    polyorder = kwargs.get('polyorder', None)
+    smooth = kwargs.get('smooth', None)
+    config = load_config()
+    plot = 0
+    save = 1
+
+    print(f"\n\nRécupération des toutes les datas dans tous les npz ...")
+    datas = get_data_in_all_npz(    PAQUET=PAQUET,
+                                    window=window,
+                                    polyorder=polyorder,
+                                    smooth=smooth)
+
+    print(f"\nType de datas: {type(datas)} avec len() = {len(datas)}")
+
+    print("\nGet_train_test_datas_and_plot ...")
+    train_test, train_test_label = get_train_test_datas_and_plot(
+                                            datas,
+                                            PAQUET=PAQUET,
+                                            window=window,
+                                            polyorder=polyorder,
+                                            plot = plot,
+                                            dt = 1500,
+                                            smooth=smooth,
+                                            config=config)
+
+    print("\nShuffle avec hasard ...")
+    train, test, train_label, test_label = shuffle(
+                                            train_test,
+                                            train_test_label,
+                                            PAQUET=PAQUET,
+                                            window=window,
+                                            polyorder=polyorder)
+
+    print("\nCreation des array avec hasard ...")
+    train, test, train_label, test_label = create_arrays(
+                                            train,
+                                            test,
+                                            train_label,
+                                            test_label,
+                                            PAQUET=PAQUET,
+                                            window=window,
+                                            polyorder=polyorder)
+
+    print("\nSave npz ...")
+    if save:
+        save_npz(train, test, train_label, test_label,
+                                            PAQUET=PAQUET,
+                                            window=window,
+                                            polyorder=polyorder,
+                                            save=save,
+                                            smooth=smooth)
+    print("Done.")
+
 
 def get_data_per_npz(geek, **kwargs):
 
