@@ -1,5 +1,10 @@
 #!python3
 
+"""
+script joseph numpy avec des array input_shape=(50,)
+sans nettoyage des datas et sans smooth
+"""
+
 
 import numpy as np
 
@@ -20,8 +25,8 @@ NB_OBJ = 7
 class Activity:
 
     def __init__(self):
-        print("Init ...")
-        data = np.load('./npz_final/datas_numpy.npz', allow_pickle=True)
+        print("Init ... avec ./datas_numpy.npz")
+        data = np.load('./datas_numpy.npz', allow_pickle=True)
         self.train = data["train"]
         self.test = data["test"]
         self.train_label = data["train_label"]

@@ -1,5 +1,10 @@
 #!python3
 
+"""
+Script à lancer une fois pour initier le fichier config.json,
+coome il existe dans le dépot, ne pas le lancer
+"""
+
 
 import json
 import ast

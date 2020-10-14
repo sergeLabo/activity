@@ -1,5 +1,11 @@
 #!python3
 
+"""
+Crée datas_numpy.npz
+avec correction des moyennes pour uniformiser les datas
+crée des paquets de (50, )
+"""
+
 
 import os
 from time import time, sleep

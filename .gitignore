@@ -7,12 +7,9 @@
 Activity Recognition/
 old/
 courbe/
-config/
-hyperparameter/
-npz/
-npz_final/
+npz_final/hyperparameter/
 
-# Forced !/poesie/poesie_1/poesie_clean.txt
+# Forced !/poesie/poesie_1/poesie_clean.txt pour avoir la syntaxe
 
 
 # Python test

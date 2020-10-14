@@ -1,5 +1,11 @@
 #!python3
 
+"""
+1er script à faire tourner pour convertir le csv de 50 Mo
+en 15 npz compressé soit 6.7 Mo
+"""
+
+
 import os
 import csv
 import numpy as np

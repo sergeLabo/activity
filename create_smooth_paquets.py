@@ -1,5 +1,12 @@
 #!python3
 
+"""
+Crée les ./npz_final/hyperparameter/no_smooth_keras_25_21_1.npz
+Ne garde que les bonnes datas
+smooth ou pas
+plot ou pas
+
+"""
 
 import os
 from time import time, sleep
@@ -12,54 +19,52 @@ from matplotlib.widgets import Slider
 import scipy.signal
 
 
-def load_config():
-    global CONFIG
-    fichier = './config.json'
-    with open(fichier, "r") as fd:
-        conf = fd.read()
-        fd.close()
-    return ast.literal_eval(conf)
-
-CONFIG = load_config()
-
 def main():
 
-    save = 0  # pour faire enreg
-    plot = 1  # pour afficher les courbes
+    config = load_config()
+    save = 1  # pour faire enreg
+    plot = 0  # pour afficher les courbes
+    smooth = 0
 
-    for PAQUET in [51]:  # [25, 51, 75, 101, 125, 151, 251, 301]:
-        for window in [21]:  # [21, 31, 41, 51, 61, 71, 81]:  # toujours impair
-            for polyorder in [3]:  # [1, 3, 5, 7, 9]:
+    for PAQUET in [25, 51, 75, 101, 125, 151, 251, 301]:
+        for window in [21, 31, 41, 51, 61, 71, 81]:  # toujours impair
+            for polyorder in [1, 3, 5, 7, 9]:
                 print(f"\n\nRécupération des toutes les datas dans tous les npz ...")
                 datas = get_data_in_all_npz(    PAQUET=PAQUET,
                                                 window=window,
-                                                polyorder=polyorder)
+                                                polyorder=polyorder,
+                                                smooth=smooth)
 
                 print(f"\nType de datas: {type(datas)} avec len() = {len(datas)}")
 
                 print("\nGet_train_test_datas_and_plot ...")
-                train_test, train_test_label = get_train_test_datas_and_plot(datas,
-                                                                    PAQUET=PAQUET,
-                                                                    window=window,
-                                                                    polyorder=polyorder,
-                                                                    plot = plot,
-                                                                    dt = 1500)
+                train_test, train_test_label = get_train_test_datas_and_plot(
+                                                        datas,
+                                                        PAQUET=PAQUET,
+                                                        window=window,
+                                                        polyorder=polyorder,
+                                                        plot = plot,
+                                                        dt = 1500,
+                                                        smooth=smooth,
+                                                        config=config)
 
                 print("\nShuffle avec hasard ...")
-                train, test, train_label, test_label = shuffle( train_test,
-                                                                train_test_label,
-                                                                PAQUET=PAQUET,
-                                                                window=window,
-                                                                polyorder=polyorder)
+                train, test, train_label, test_label = shuffle(
+                                                        train_test,
+                                                        train_test_label,
+                                                        PAQUET=PAQUET,
+                                                        window=window,
+                                                        polyorder=polyorder)
 
                 print("\nCreation des array avec hasard ...")
-                train, test, train_label, test_label = create_arrays(train,
-                                                                    test,
-                                                                    train_label,
-                                                                    test_label,
-                                                                    PAQUET=PAQUET,
-                                                                    window=window,
-                                                                    polyorder=polyorder)
+                train, test, train_label, test_label = create_arrays(
+                                                        train,
+                                                        test,
+                                                        train_label,
+                                                        test_label,
+                                                        PAQUET=PAQUET,
+                                                        window=window,
+                                                        polyorder=polyorder)
 
                 print("\nSave npz ...")
                 if save:
@@ -70,17 +75,27 @@ def main():
                                                         save=save)
                 print("Done.")
 
+def get_one_shot_npz():
+    pass
+
 def get_data_per_npz(geek, **kwargs):
 
     PAQUET = kwargs.get('PAQUET', None)
     window = kwargs.get('window', None)
     polyorder = kwargs.get('polyorder', None)
+    smooth = kwargs.get('smooth', None)
 
     data = np.load('./npz/' + str(geek) + '.npz')
-    x = scipy.signal.savgol_filter(data['x'], window, polyorder)
-    y = scipy.signal.savgol_filter(data['y'], window, polyorder)
-    z = scipy.signal.savgol_filter(data['z'], window, polyorder)  # array
+    if smooth:
+        x = scipy.signal.savgol_filter(data['x'], window, polyorder)
+        y = scipy.signal.savgol_filter(data['y'], window, polyorder)
+        z = scipy.signal.savgol_filter(data['z'], window, polyorder)  # array
+    else:
+        x = data['x']
+        y = data['y']
+        z = data['z']  # array
     activity = data['activity']
+
     print(f"Nombre datas pour geek {geek} : {len(x)}")
 
     return [x, y, z, activity]
@@ -91,13 +106,15 @@ def get_data_in_all_npz(**kwargs):
     PAQUET = kwargs.get('PAQUET', None)
     window = kwargs.get('window', None)
     polyorder = kwargs.get('polyorder', None)
+    smooth = kwargs.get('smooth', None)
 
     datas = []
     for geek in range(1, 16, 1):
         [x, y, z, activity] = get_data_per_npz( geek,
                                                 PAQUET=PAQUET,
                                                 window=window,
-                                                polyorder=polyorder)
+                                                polyorder=polyorder,
+                                                smooth=smooth)
         datas.append([x, y, z, activity])
     print(f"Nombre d'humains = {len(datas)}")
     return datas
@@ -139,20 +156,17 @@ def get_train_test_datas_and_plot(datas, **kwargs):
     """
     train_test       = [[paquet de 50*[12,14,16] de la même activité], .... ]
     train_test_label = [2=activity, .... ]
-
-    CONFIG[str(activ)][str(geek)]['mini_' + str(gr)] = int(mini)
-    CONFIG[str(activ)][str(geek)]['maxi_' + str(gr)] = int(maxi)
     CONFIG = {'1=': {'1': {'mini_0': 572, 'maxi_0': 32531}, '2': {'mini_0': 2958,
     'maxi_0': 44150}, '3': {'mini_0': 916, 'maxi_0': 41675},
-
     """
-    global CONFIG
 
+    config = kwargs.get('config', None)
     PAQUET = kwargs.get('PAQUET', None)
     window = kwargs.get('window', None)
     polyorder = kwargs.get('polyorder', None)
     plot = kwargs.get('plot', None)
     dt = kwargs.get('dt', None)
+    smooth = kwargs.get('smooth', None)
 
     train_test, train_test_label = [], []
 
@@ -171,8 +185,8 @@ def get_train_test_datas_and_plot(datas, **kwargs):
                 nb = len(groupe)
                 print(f"        Nombre de valeurs: {nb}")
 
-                debut = CONFIG[str(activ)][str(geek)]['mini_' + str(gr)]
-                fin = CONFIG[str(activ)][str(geek)]['maxi_' + str(gr)]
+                debut = config[str(activ)][str(geek)]['mini_' + str(gr)]
+                fin = config[str(activ)][str(geek)]['maxi_' + str(gr)]
 
                 if fin <= debut:
                     sp = " " * 40
@@ -205,7 +219,15 @@ def get_train_test_datas_and_plot(datas, **kwargs):
                     plt.plot(x_values, yz, color='b', marker = 'X', linewidth=0.02)
 
                     timer.start()
-                    fig.savefig("./courbe/zones_final/activ_" + str(activ) + "_geek_" + str(geek) + "_groupe_" + str(gr) + ".png")
+                    if smooth:
+                        f = "./courbe/zones_final_smooth/activ_" +\
+                             str(activ) + "_geek_" + str(geek) + "_groupe_" +\
+                              str(gr) + "_smooth_" + str(smooth) + ".png"
+                    else:
+                        f = "./courbe/zones_final_avant_smooth/activ_" +\
+                            str(activ) + "_geek_" + str(geek) + "_groupe_" +\
+                             str(gr) + ".png"
+                    fig.savefig(f)
                     plt.show()
 
                 paquets = get_paquets(good_datas, PAQUET=PAQUET)
@@ -304,16 +326,24 @@ def save_npz(train, test, train_label, test_label, **kwargs):
     window = kwargs.get('window', None)
     polyorder = kwargs.get('polyorder', None)
     save = kwargs.get('save', None)
+    smooth = kwargs.get('smooth', None)
 
     if save:
         print("Vérification avant enregistrement:")
         print("    ", train.shape, test.shape, train_label.shape, test_label.shape)
 
-        outfile = './npz_final/hyperparameter/smooth_numpy_' +\
-                    str(PAQUET) + '_' +\
-                    str(window) + '_' +\
-                    str(polyorder) +\
-                    '.npz'
+        if smooth:
+            outfile = './npz_final/hyperparameter/smooth_keras_' +\
+                        str(PAQUET) + '_' +\
+                        str(window) + '_' +\
+                        str(polyorder) +\
+                        '.npz'
+        else:
+            outfile = './npz_final/hyperparameter/no_smooth_keras_' +\
+                        str(PAQUET) + '_' +\
+                        str(window) + '_' +\
+                        str(polyorder) +\
+                        '.npz'
 
         np.savez_compressed(outfile, **{"train": train,
                                         "test": test,
@@ -357,6 +387,13 @@ def create_array(train,  **kwargs):
                 for t in range(3):
                     train_a[g][p][t] = train[g][p][t]
     return train_a
+
+def load_config():
+    fichier = './config.json'
+    with open(fichier, "r") as fd:
+        conf = fd.read()
+        fd.close()
+    return ast.literal_eval(conf)
 
 
 if __name__ == "__main__":

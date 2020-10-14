@@ -1,5 +1,11 @@
 #!python3
 
+"""
+keras avec des array input_shape=(50, 3)
+sans nettoyage des datas et sans smooth
+"""
+
+
 import numpy as np
 # #from tensorflow import keras
 from tensorflow.keras import Sequential, layers
@@ -23,8 +29,8 @@ def main():
 
 def get_train_test_datas():
 
-    print("Init ...")
-    data = np.load('./npz_final/datas_keras.npz', allow_pickle=True)
+    print("Init ... avec ./datas_keras.npz")
+    data = np.load('./datas_keras.npz', allow_pickle=True)
     train = data["train"]
     test = data["test"]
     train_label = data["train_label"]

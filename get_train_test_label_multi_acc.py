@@ -1,5 +1,11 @@
 #!python3
 
+"""
+Crée datas_keras.npz
+avec correction des moyennes pour uniformiser les datas
+crée des paquets de (50, 3)
+"""
+
 
 import os
 from time import time, sleep
