@@ -26,13 +26,12 @@ def main():
     # Définir les parametres dans la fonction
     # #hyper_parameter_optimization()
 
-    # Définir les options, le npz doit être créé dans create_smooth_paquets avant
-    PAQUET = 49
+    # Définir les options, le npz sera créé par ce script si inexistant
+    PAQUET = 50
     window = 81 # impair
     polyorder = 3
     smooth = 1
     epochs = 5
-
     only_one_train_test(PAQUET=PAQUET, window=window, polyorder=polyorder,
                         smooth=smooth, epochs=epochs)
 

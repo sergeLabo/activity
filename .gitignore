@@ -7,11 +7,10 @@
 Activity Recognition/
 old/
 courbe/
-npz_final/
-npz_final/hyperparameter/
+npz_final/hyperparameter/*
 
 # Forced
-!*smooth_keras_49_81_3.npz
+!smooth_keras_49_81_3.npz
 
 # Python test
 *_old.py
