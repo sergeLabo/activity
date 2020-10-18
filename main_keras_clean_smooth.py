@@ -63,14 +63,14 @@ def hyper_parameter_optimization():
                     kwargs["epochs"] = epochs
                     for smooth in [0, 1]:
                         kwargs["smooth"] = smooth
-                        for gliss in [10, 20, 50, 100]:
+                        for gliss in [20, 50, 100]:
                             kwargs["gliss"] = gliss
                             for clean in [0, 1]:
                                 kwargs["clean"] = clean
                                 print(kwargs)
                                 ka = KerasActivity(**kwargs)
                                 a, test_acc = ka.one_training()
-                                if test_acc > 0.10:
+                                if test_acc > 0.50:
                                     fichier = (f'./h5/keras_{paquet}_{window}_'
                                     f'{polyorder}_{gliss}_{smooth}_{clean}')
                                     ka.model.save(fichier)
