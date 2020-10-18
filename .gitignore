@@ -9,9 +9,9 @@ old/
 courbe/
 npz_final/hyperparameter/*
 h5/*
+studies/
 
 # Forced
-!smooth_keras_49_81_3.npz
 !foo.txt
 
 # Python test
