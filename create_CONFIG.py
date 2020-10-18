@@ -2,7 +2,7 @@
 
 """
 Script à lancer une fois pour initier le fichier config.json,
-coome il existe dans le dépot, ne pas le lancer
+comme il existe dans le dépot, ne pas le lancer
 """
 
 

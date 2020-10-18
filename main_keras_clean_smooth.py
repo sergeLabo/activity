@@ -4,196 +4,189 @@
 keras avec des array input_shape=(50, 3)
 avec nettoyage des datas et avec ou sans smooth
 
-Les valeurs
-    PAQUET = 51
-    window = 81 # impair
-    polyorder = 3
-    smooth = 1
-    doivent correpondre à des valeurs de create_smooth_paquets.py
+le npz est créé automatiquement si besoin
+git reset --hard origin/master
 """
 
 import numpy as np
 import random
 from datetime import datetime
-from tensorflow.keras import Sequential, layers
+from tensorflow.keras import Sequential, layers, utils
 
-from create_smooth_paquets import get_one_shot_final_npz
+from create_clean_smooth_paquets import getTrainTestNpz
 
 
-def main():
-    """Choisir en commentant une des 2 lignes"""
+def main_only_one():
 
-    # Définir les parametres dans la fonction
-    # #hyper_parameter_optimization()
+    kwargs = {  "PAQUET": 900,
+                "window": 61, # impair
+                "polyorder": 3,
+                "save": 1,  # pour faire enreg
+                "plot": 0,  # pour afficher les courbes
+                "smooth": 1,  # lissage
+                "dt": 3000,  # ms d'affichage
+                "gliss": 100,  # paquets glissants
+                "clean": 1,  # coupe des début fin d'activité
+                "fullscreen": 0,
+                "epochs": 3
+                }
 
-    # Définir les options, le npz sera créé par ce script si inexistant
-    PAQUET = 50
-    window = 81 # impair
-    polyorder = 3
-    smooth = 1
-    epochs = 5
-    only_one_train_test(PAQUET=PAQUET, window=window, polyorder=polyorder,
-                        smooth=smooth, epochs=epochs)
-
-def only_one_train_test(**kwargs):
-
-    PAQUET = kwargs.get('PAQUET', None)
-    window = kwargs.get('window', None)
-    polyorder = kwargs.get('polyorder', None)
-    smooth = kwargs.get('smooth', None)
-    epochs = kwargs.get('epochs', None)
-
-    # Recherche du fichier
-    if smooth:
-        infile =    './npz_final/hyperparameter/smooth_keras_' +\
-                    str(PAQUET) + '_' +\
-                    str(window) + '_' +\
-                    str(polyorder) +\
-                    '.npz'
-    else:
-        infile =    './npz_final/hyperparameter/no_smooth_keras_' +\
-                    str(PAQUET) + '_' +\
-                    str(window) + '_' +\
-                    str(polyorder) +\
-                    '.npz'
-
-    try:
-        np.load(infile, allow_pickle=True)
-    except:
-        # création du npz
-        get_one_shot_final_npz(PAQUET=PAQUET, window=window, polyorder=polyorder,
-                                smooth=smooth)
-
-    train, test, train_label, test_label = get_train_test_datas(PAQUET=PAQUET,
-                                                                window=window,
-                                                                polyorder=polyorder,
-                                                                smooth=smooth)
-    model = build_the_model(PAQUET=PAQUET)
-    model = compile_the_model(model)
-    model = training_the_model(model, train, train_label, epochs=epochs)
-    test_acc = testing_the_model(model, test, test_label)
-
-    a = "Paquets={} window={} polyorder={} Epochs={} smooth={} Efficacité={}%"
-    print(a.format(PAQUET, window, polyorder, epochs, smooth, round(test_acc*100, 1)))
+    ka = KerasActivity(**kwargs)
+    b = ka.one_training()
+    print(b)
 
 def hyper_parameter_optimization():
     """pas de model.save('acc_model.h5')"""
 
     resp = ""
-    smooth = 1
 
-    for i in range(5):
-        for PAQUET in [25, 51, 75, 101, 125, 151, 251, 301]:
-            for window in [21, 31, 41, 51, 61, 71, 81]:  # toujours impair
-                for polyorder in [1, 3, 5, 7, 9]:
-                    for epochs in [5, 10, 20]:
-                        train, test, train_label, test_label = get_train_test_datas(PAQUET=PAQUET,
-                                                                                    window=window,
-                                                                                    polyorder=polyorder,
-                                                                                    smooth=smooth)
-                        model = build_the_model(PAQUET=PAQUET)
-                        model = compile_the_model(model)
-                        model = training_the_model(model, train, train_label, epochs=epochs)
+    kwargs = {  "PAQUET": 900,
+                "window": 61, # impair
+                "polyorder": 3,
+                "save": 1,  # pour faire enreg
+                "plot": 0,  # pour afficher les courbes
+                "smooth": 1,  # lissage
+                "dt": 3000,  # ms d'affichage
+                "gliss": 100,  # paquets glissants
+                "clean": 1,  # coupe des début fin d'activité
+                "fullscreen": 0,
+                "epochs": 3
+                }
 
-                        test_acc = testing_the_model(model, test, test_label)
-
-                        a = "Paquets={} window={} polyorder={} Efficacité={}% indice={} Epochs={} smooth={}"
-                        print(a.format(PAQUET, window, polyorder, round(test_acc*100, 1), i, epochs, smooth))
-
-                        b = "Paquets={} window={} polyorder={} Efficacité={}% indice={} Epochs={} smooth={}\n"
-                        resp += b.format(PAQUET, window, polyorder, round(test_acc*100, 1), i, epochs, smooth)
-
-    print("\n\n\n\n", resp)
+    for paquet in [300, 600, 900]:
+        kwargs["PAQUET"] = paquet
+        for window in [61, 101]:  # toujours impair
+            kwargs["window"] = window
+            for polyorder in [3, 6, 9]:
+                kwargs["polyorder"] = polyorder
+                for epochs in [3]:
+                    kwargs["epochs"] = epochs
+                    for smooth in [0, 1]:
+                        kwargs["smooth"] = smooth
+                        for gliss in [10, 20, 50, 100]:
+                            kwargs["gliss"] = gliss
+                            for clean in [0, 1]:
+                                kwargs["clean"] = clean
+                                print(kwargs)
+                                ka = KerasActivity(**kwargs)
+                                a, test_acc = ka.one_training()
+                                if test_acc > 0.10:
+                                    fichier = (f'./h5/keras_{paquet}_{window}_'
+                                    f'{polyorder}_{gliss}_{smooth}_{clean}')
+                                    ka.model.save(fichier)
+                                resp += a + "\n"
+                                print("\n\n", resp, "\n\n")
 
     now = datetime.now()
     time_ = now.strftime('%Y_%m_%d_%H_%M')
-    outfile = './hyperparameter/hyperparameter_2_hidden_layer' + time_ + '.npz'
+    outfile = './hyperparameter/hyperparameter_new_' + time_ + '.npz'
     print("Save:", outfile)
     with open(outfile, "w") as fd:
         fd.write(resp)
     fd.close()
 
-def get_train_test_datas(**kwargs):
 
-    PAQUET = kwargs.get('PAQUET', None)
-    window = kwargs.get('window', None)
-    polyorder = kwargs.get('polyorder', None)
-    smooth = kwargs.get('smooth', None)
+class KerasActivity:
 
-    print("\n\n\n\nInit ... Chargement des datas smooth_keras_ ....")
-    if smooth:
-        infile =    './npz_final/hyperparameter/smooth_keras_' +\
-                    str(PAQUET) + '_' +\
-                    str(window) + '_' +\
-                    str(polyorder) +\
-                    '.npz'
-    else:
-        infile =    './npz_final/hyperparameter/no_smooth_keras_' +\
-                    str(PAQUET) + '_' +\
-                    str(window) + '_' +\
-                    str(polyorder) +\
-                    '.npz'
+    def __init__(self, **kwargs):
 
-    data = np.load(infile, allow_pickle=True)
-    train = data["train"]
-    test = data["test"]
-    train_label = data["train_label"]
-    test_label = data["test_label"]
+        self.kwargs = kwargs
+        self.PAQUET = kwargs.get('PAQUET', None)
+        self.window = kwargs.get('window', None)
+        self.polyorder = kwargs.get('polyorder', None)
+        self.smooth = kwargs.get('smooth', None)
+        self.gliss = kwargs.get('gliss', None)
+        self.clean = kwargs.get('clean', None)
+        self.epochs = kwargs.get('epochs', None)
+        self.model = None
 
-    print("Taille:", train.shape, test.shape, train_label.shape,
-                    test_label.shape)
+    def one_training(self):
 
-    return train, test, train_label, test_label
+        infile = (f'./npz_final/hyperparameter/keras_{self.PAQUET}_'
+                 f'{self.window}_{self.polyorder}_{self.gliss}_'
+                 f'{self.smooth}_{self.clean}.npz')
+        print(f"\nInit ... Chargement des datas de {infile}....")
 
-def build_the_model(**kwargs):
-    print("Build the model ...")
+        try:
+            data = np.load(infile, allow_pickle=True)
+        except:
+            # création du npz
+            gttn = getTrainTestNpz(**self.kwargs)
+            data = np.load(infile, allow_pickle=True)
 
-    PAQUET = kwargs.get('PAQUET', None)
+        train, test, train_label, test_label = self.get_train_test_datas(data)
+        print("Vérification avant enregistrement:")
+        print("    ", train.shape, test.shape, train_label.shape, test_label.shape)
 
-    # Choix du model
-    model = Sequential()
+        self.build_the_model()
+        self.compile_the_model()
+        self.training_the_model(train, train_label)
+        test_acc = self.testing_the_model(test, test_label)
 
-    # Input layer
-    model.add(layers.Dense(units=4, input_shape=(PAQUET, 3)))
-    model.add(layers.Flatten())
+        a = (f'Paquets={self.PAQUET} window={self.window} polyorder={self.polyorder} '
+             f'Epochs={self.epochs} smooth={self.smooth} gliss={self.gliss} '
+             f'clean={self.clean} Efficacité={round(test_acc*100, 1)} %')
+        b = a.replace(".", ",")  # pour Office writter
 
-    # Hiiden layer
-    model.add(layers.Dense(8))
-    model.add(layers.Dense(64))
+        return b, test_acc
 
-    # Output
-    model.add(layers.Dense(7))
+    def get_train_test_datas(self, data):
 
-    print(model.summary())
-    print("Build done.")
+        train = data["train"]
+        test = data["test"]
 
-    return model
+        # y_train = keras.utils.to_categorical(y_train, 7)
+        train_label = utils.to_categorical(data["train_label"], 7)
+        test_label  = utils.to_categorical(data["test_label"], 7)
 
-def compile_the_model(model, **kwargs):
+        print("Taille:", train.shape, test.shape, train_label.shape, test_label.shape)
 
-    print("Compile the model ...")
-    model.compile(  optimizer='adam',
-                    loss='sparse_categorical_crossentropy',
-                    metrics=['accuracy'] )
+        return train, test, train_label, test_label
 
-    print("Compile done.")
-    return model
+    def build_the_model(self):
+        print("Build the model ...")
 
-def training_the_model(model, train, train_label, **kwargs):
+        # Choix du model
+        self.model = Sequential()
 
-    epochs = kwargs.get('epochs', None)
+        # Input layer
+        self.model.add(layers.Dense(units=4, input_shape=(self.PAQUET, 3)))
+        self.model.add(layers.Flatten())
 
-    print("Training the model ...")
-    model.fit(train, train_label, epochs=epochs)
-    print("Training done.")
+        # Hidden layer
+        self.model.add(layers.Dense(128, activation='relu'))
+        # #model.add(layers.Dense(64, activation='relu'))
 
-    return model
+        # Output
+        self.model.add(layers.Dense(7, activation='softmax'))
 
-def testing_the_model(model, test, test_label, **kwargs):
+        print(self.model.summary())
+        print("Build done.")
 
-    print("Testing ......")
-    test_loss, test_acc = model.evaluate(test, test_label)
-    return test_acc
+    def compile_the_model(self):
+        """ optimizer='sgd' stochastic gradient descent"""
+
+        print("Compile the model ...")
+        self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+        print("Compile done.")
+
+    def training_the_model(self, train, train_label):
+
+        print("Training the model ...")
+        self.model.fit(train, train_label, epochs=self.epochs)
+        print("Training done.")
+
+    def testing_the_model(self, test, test_label):
+
+        print("Testing ......")
+        test_loss, test_acc = self.model.evaluate(test, test_label)
+
+        return test_acc
+
 
 if __name__ == "__main__":
-    main()
+
+    hyper_parameter_optimization()
+
+    # #main_only_one()
