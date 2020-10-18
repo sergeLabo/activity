@@ -49,17 +49,16 @@ class getTrainTestNpz:
         self.fullscreen = kwargs.get('fullscreen', None)
         self.config = load_config()
 
-        print(f"\n\nRécupération des toutes les datas dans tous les npz ...")
+        print(f"Récupération des toutes les datas dans tous les npz ...")
         self.datas = self.get_data_in_all_npz()
 
-        print("\nGet_train_test_datas_and_plot ...")
+        print("Get_train_test_datas_and_plot ...")
         train_test, train_test_label = self.get_train_test_datas_and_plot()
-        print("\nShuffle et to_array ...")
+        print("Shuffle et to_array ...")
         train, test, train_label, test_label = self.shuffle(train_test, train_test_label)
-        print("\nSave npz ...")
+        print("Save npz ...")
         if self.save:
             self.save_npz(train, test, train_label, test_label)
-        print("Done.")
 
     def get_data_in_all_npz(self):
         """len de datas = 15 datas[i] = [x, y, z, activity]"""
@@ -207,7 +206,7 @@ class getTrainTestNpz:
                     # p=1 et t=0à999 --> 10 11 12 .... 1009
                     paquet.append(good_datas[self.gliss*p + t])
                 paquets.append(paquet)
-        # #print("        Nombre de paquets réel:", len(paquets))
+
         return paquets
 
     def shuffle(self, train_test, train_test_label):
@@ -216,19 +215,14 @@ class getTrainTestNpz:
         Je convertit en array à la fin
         """
 
-        # Je vérifie
-        print("Taille de train_test:", len(train_test))
-
         # je bats les cartes des datas, mais conserve la correspondance valeur, label
         par_couple = {}
         p = 0
         for p in range(len(train_test)):
             par_couple[p] = (train_test[p], train_test_label[p])
-        train, test, train_label, test_label = [], [], [], []
 
-        total = len(train_test)
-        n_train = int(total*0.8)
-        n_test = total - n_train
+        train, test, train_label, test_label = [], [], [], []
+        n_train = int(len(train_test)*0.8)
 
         # liste de nombre au hasard qui seront les indices
         hasard = [x for x in range(len(par_couple))]
@@ -252,8 +246,9 @@ class getTrainTestNpz:
     def save_npz(self, train, test, train_label, test_label):
 
         if self.save:
-            print("Vérification avant enregistrement:")
-            print("    ", train.shape, test.shape, train_label.shape, test_label.shape)
+            print((f"Vérification des shapes avant enregistrement: {train.shape}"
+                  f"{test.shape} {train_label.shape} {test_label.shape}"))
+
 
             outfile = (f'./npz_final/hyperparameter/keras_{self.PAQUET}_'
                        f'{self.window}_{self.polyorder}_{self.gliss}_'

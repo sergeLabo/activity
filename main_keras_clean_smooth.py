@@ -18,15 +18,15 @@ from create_clean_smooth_paquets import getTrainTestNpz
 
 def main_only_one():
 
-    kwargs = {  "PAQUET": 900,
-                "window": 61, # impair
-                "polyorder": 3,
+    kwargs = {  "PAQUET": 1200,
+                "window": 41, # impair
+                "polyorder": 2,
                 "save": 1,  # pour faire enreg
                 "plot": 0,  # pour afficher les courbes
                 "smooth": 1,  # lissage
                 "dt": 3000,  # ms d'affichage
                 "gliss": 100,  # paquets glissants
-                "clean": 1,  # coupe des début fin d'activité
+                "clean": 0,  # coupe des début fin d'activité
                 "fullscreen": 0,
                 "epochs": 3
                 }
@@ -75,7 +75,7 @@ def hyper_parameter_optimization():
                                     f'{polyorder}_{gliss}_{smooth}_{clean}')
                                     ka.model.save(fichier)
                                 resp += a + "\n"
-                                print("\n\n", resp, "\n\n")
+                                print("\n", resp, "\n")
 
     now = datetime.now()
     time_ = now.strftime('%Y_%m_%d_%H_%M')
@@ -105,8 +105,10 @@ class KerasActivity:
         infile = (f'./npz_final/hyperparameter/keras_{self.PAQUET}_'
                  f'{self.window}_{self.polyorder}_{self.gliss}_'
                  f'{self.smooth}_{self.clean}.npz')
-        print(f"\nInit ... Chargement des datas de {infile}....")
-
+        print(f"\nInit ...")
+        print((f'Paquets={self.PAQUET} window={self.window} '
+               f'polyorder={self.polyorder} Epochs={self.epochs} '
+               f'smooth={self.smooth} gliss={self.gliss} clean={self.clean}'))
         try:
             data = np.load(infile, allow_pickle=True)
         except:
@@ -114,9 +116,9 @@ class KerasActivity:
             gttn = getTrainTestNpz(**self.kwargs)
             data = np.load(infile, allow_pickle=True)
 
+        print(f"Chargement de       {infile}")
         train, test, train_label, test_label = self.get_train_test_datas(data)
-        print("Vérification avant enregistrement:")
-        print("    ", train.shape, test.shape, train_label.shape, test_label.shape)
+        print(f"Vérification des shapes: {train.shape} {test.shape} {train_label.shape} {test_label.shape}")
 
         self.build_the_model()
         self.compile_the_model()
@@ -139,8 +141,6 @@ class KerasActivity:
         train_label = utils.to_categorical(data["train_label"], 7)
         test_label  = utils.to_categorical(data["test_label"], 7)
 
-        print("Taille:", train.shape, test.shape, train_label.shape, test_label.shape)
-
         return train, test, train_label, test_label
 
     def build_the_model(self):
@@ -154,14 +154,13 @@ class KerasActivity:
         self.model.add(layers.Flatten())
 
         # Hidden layer
+        self.model.add(layers.Dense(16, activation='relu'))
         self.model.add(layers.Dense(128, activation='relu'))
-        # #model.add(layers.Dense(64, activation='relu'))
 
         # Output
         self.model.add(layers.Dense(7, activation='softmax'))
 
         print(self.model.summary())
-        print("Build done.")
 
     def compile_the_model(self):
         """ optimizer='sgd' stochastic gradient descent"""
@@ -169,13 +168,10 @@ class KerasActivity:
         print("Compile the model ...")
         self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-        print("Compile done.")
-
     def training_the_model(self, train, train_label):
 
         print("Training the model ...")
         self.model.fit(train, train_label, epochs=self.epochs)
-        print("Training done.")
 
     def testing_the_model(self, test, test_label):
 
@@ -187,6 +183,6 @@ class KerasActivity:
 
 if __name__ == "__main__":
 
-    hyper_parameter_optimization()
+    # #hyper_parameter_optimization()
 
-    # #main_only_one()
+    main_only_one()
