@@ -10,9 +10,11 @@ courbe/
 npz_final/hyperparameter/*
 h5/*
 studies/
+hyperparameter/*
 
 # Forced
 !foo.txt
+!hyperparameter/hyperparameter.ods
 
 # Python test
 *_old.py
