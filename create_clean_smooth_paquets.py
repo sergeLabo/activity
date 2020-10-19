@@ -27,11 +27,11 @@ def main():
                 "dt": 3000,  # ms d'affichage
                 "gliss": 100,  # paquets glissants
                 "clean": 1,  # coupe des début fin d'activité
-                "fullscreen": 1
+                "fullscreen": 1,  # pour les courbes
              }
 
     gttn = getTrainTestNpz(**kwargs)
-
+    del gttn
 
 class getTrainTestNpz:
 
@@ -49,7 +49,6 @@ class getTrainTestNpz:
         self.fullscreen = kwargs.get('fullscreen', None)
         self.config = load_config()
 
-        print(f"Récupération des toutes les datas dans tous les npz ...")
         self.datas = self.get_data_in_all_npz()
 
         print("Get_train_test_datas_and_plot ...")

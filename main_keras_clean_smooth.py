@@ -8,6 +8,10 @@ le npz est créé automatiquement si besoin
 git reset --hard origin/master
 """
 
+import os
+# Désactivation du GPU
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
 import numpy as np
 import random
 from datetime import datetime
@@ -76,10 +80,51 @@ def hyper_parameter_optimization():
                                     ka.model.save(fichier)
                                 resp += a + "\n"
                                 print("\n", resp, "\n")
+                                del ka
 
     now = datetime.now()
     time_ = now.strftime('%Y_%m_%d_%H_%M')
-    outfile = './hyperparameter/hyperparameter_new_' + time_ + '.npz'
+    outfile = './hyperparameter/hyperparameter_new_' + time_ + '.txt'
+    print("Save:", outfile)
+    with open(outfile, "w") as fd:
+        fd.write(resp)
+    fd.close()
+
+def some_optimization():
+    """
+
+    """
+
+    kwargs = {  "PAQUET": 1600,
+                "window": 61, # impair
+                "polyorder": 3,
+                "save": 1,  # pour faire enreg
+                "plot": 0,  # pour afficher les courbes
+                "smooth": 0,  # lissage
+                "dt": 3000,  # ms d'affichage
+                "gliss": 40,  # paquets glissants
+                "clean": 1,  # coupe des début fin d'activité
+                "fullscreen": 0,
+                "epochs": 3,
+                "utils_to_categorical": 1,  # ne marche plus si 0 !
+                "loss": 'categorical_crossentropy',  # 'binary_crossentropy'
+                "optimizer": 'adam',  # 'SGD',
+                "metrics": 'accuracy'}
+
+    resp = ""
+    ka = KerasActivity(**kwargs)
+    a, test_acc = ka.one_training()
+    if test_acc > 0.50:
+        fichier = (f'./h5/keras_{paquet}_{window}_'
+        f'{polyorder}_{gliss}_{smooth}_{clean}')
+        ka.model.save(fichier)
+    resp += a + "\n"
+    print("\n", resp, "\n")
+    del ka
+
+    now = datetime.now()
+    time_ = now.strftime('%Y_%m_%d_%H_%M')
+    outfile = './hyperparameter/some_optimization_' + time_ + '.txt'
     print("Save:", outfile)
     with open(outfile, "w") as fd:
         fd.write(resp)
@@ -98,6 +143,11 @@ class KerasActivity:
         self.gliss = kwargs.get('gliss', None)
         self.clean = kwargs.get('clean', None)
         self.epochs = kwargs.get('epochs', None)
+        self.utils_to_categorical = kwargs.get('utils_to_categorical', None)
+        self.loss = kwargs.get('loss', None)
+        self.optimizer = kwargs.get('optimizer', None)
+        self.metrics = kwargs.get('metrics', None)
+
         self.model = None
 
     def one_training(self):
@@ -129,7 +179,6 @@ class KerasActivity:
              f'Epochs={self.epochs} smooth={self.smooth} gliss={self.gliss} '
              f'clean={self.clean} Efficacité={round(test_acc*100, 1)} %')
         b = a.replace(".", ",")  # pour Office writter
-
         return b, test_acc
 
     def get_train_test_datas(self, data):
@@ -137,9 +186,12 @@ class KerasActivity:
         train = data["train"]
         test = data["test"]
 
-        # y_train = keras.utils.to_categorical(y_train, 7)
-        train_label = utils.to_categorical(data["train_label"], 7)
-        test_label  = utils.to_categorical(data["test_label"], 7)
+        if self.utils_to_categorical:
+            train_label = utils.to_categorical(data["train_label"], 7)
+            test_label  = utils.to_categorical(data["test_label"], 7)
+        else:
+            train_label = data["train_label"]
+            test_label  = data["test_label"]
 
         return train, test, train_label, test_label
 
@@ -154,8 +206,8 @@ class KerasActivity:
         self.model.add(layers.Flatten())
 
         # Hidden layer
-        self.model.add(layers.Dense(16, activation='relu'))
-        self.model.add(layers.Dense(128, activation='relu'))
+        self.model.add(layers.Dense(8, activation='relu'))
+        self.model.add(layers.Dense(64, activation='relu'))
 
         # Output
         self.model.add(layers.Dense(7, activation='softmax'))
@@ -166,7 +218,9 @@ class KerasActivity:
         """ optimizer='sgd' stochastic gradient descent"""
 
         print("Compile the model ...")
-        self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        self.model.compile(loss=self.loss,
+                            optimizer=self.optimizer,
+                            metrics=self.metrics)
 
     def training_the_model(self, train, train_label):
 
@@ -185,4 +239,6 @@ if __name__ == "__main__":
 
     # #hyper_parameter_optimization()
 
-    main_only_one()
+    # #main_only_one()
+
+    some_optimization()
