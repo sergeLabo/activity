@@ -22,12 +22,12 @@ def main():
                 "window": 61, # impair
                 "polyorder": 3,
                 "save": 1,  # pour faire enreg
-                "plot": 1,  # pour afficher les courbes
+                "plot": 0,  # pour afficher les courbes
                 "smooth": 1,  # lissage
                 "dt": 3000,  # ms d'affichage
                 "gliss": 100,  # paquets glissants
                 "clean": 1,  # coupe des début fin d'activité
-                "fullscreen": 1,  # pour les courbes
+                "fullscreen": 0,  # pour les courbes
              }
 
     gttn = getTrainTestNpz(**kwargs)

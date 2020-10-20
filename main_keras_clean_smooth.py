@@ -114,10 +114,6 @@ def some_optimization():
     resp = ""
     ka = KerasActivity(**kwargs)
     a, test_acc = ka.one_training()
-    if test_acc > 0.50:
-        fichier = (f'./h5/keras_{paquet}_{window}_'
-        f'{polyorder}_{gliss}_{smooth}_{clean}')
-        ka.model.save(fichier)
     resp += a + "\n"
     print("\n", resp, "\n")
     del ka
