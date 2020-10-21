@@ -95,14 +95,14 @@ def some_optimization():
 
     """
 
-    kwargs = {  "PAQUET": 1600,
+    kwargs = {  "PAQUET": 600,
                 "window": 61, # impair
                 "polyorder": 3,
                 "save": 1,  # pour faire enreg
                 "plot": 0,  # pour afficher les courbes
                 "smooth": 0,  # lissage
                 "dt": 3000,  # ms d'affichage
-                "gliss": 40,  # paquets glissants
+                "gliss": 80,  # paquets glissants
                 "clean": 1,  # coupe des début fin d'activité
                 "fullscreen": 0,
                 "epochs": 3,
