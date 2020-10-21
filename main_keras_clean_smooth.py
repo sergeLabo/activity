@@ -216,7 +216,7 @@ class KerasActivity:
         print("Compile the model ...")
         self.model.compile(loss=self.loss,
                             optimizer=self.optimizer,
-                            metrics='accuracy')  # self.metrics)
+                            metrics=['accuracy'])  # self.metrics)
 
     def training_the_model(self, train, train_label):
 
