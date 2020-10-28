@@ -9,8 +9,8 @@ git reset --hard origin/master
 """
 
 import os
-# Désactivation du GPU
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+# ## Désactivation du GPU
+# #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 import numpy as np
 import random
@@ -95,14 +95,14 @@ def some_optimization():
 
     """
 
-    kwargs = {  "PAQUET": 600,
+    kwargs = {  "PAQUET": 2000,
+                "gliss": 200,  # paquets glissants
                 "window": 61, # impair
                 "polyorder": 3,
                 "save": 1,  # pour faire enreg
                 "plot": 0,  # pour afficher les courbes
                 "smooth": 0,  # lissage
                 "dt": 3000,  # ms d'affichage
-                "gliss": 80,  # paquets glissants
                 "clean": 1,  # coupe des début fin d'activité
                 "fullscreen": 0,
                 "epochs": 3,
@@ -216,7 +216,7 @@ class KerasActivity:
         print("Compile the model ...")
         self.model.compile(loss=self.loss,
                             optimizer=self.optimizer,
-                            metrics=['accuracy'])  # self.metrics)
+                            metrics=[self.metrics])
 
     def training_the_model(self, train, train_label):
 
@@ -235,6 +235,6 @@ if __name__ == "__main__":
 
     # #hyper_parameter_optimization()
 
-    # #main_only_one()
+    # #main_only_one() sudo passwd
 
     some_optimization()
